@@ -8,55 +8,55 @@ class dataframeanalayzer:
     def __init__(self):
         self.portfolio=pd.DataFrame()
         
-    def loadcvstodataframe(self, sourcepath,indexcol):
+    def load_cvs_to_dataframe(self, sourcepath,indexcol):
         csvfile=Path(sourcepath)
         
         #create data frame from csv file
         _df=pd.read_csv(csvfile,index_col=indexcol,infer_datetime_format=True,parse_dates=True)
         return _df
 
-    def createportfolio(self,dataframes):
+    def create_portfolio(self,dataframes):
         self.portfolio=pd.concat(dataframes,axis='columns',join='inner').dropna()
     
-    def concatdataframes(self,dataframes,axisvalue):
+    def concat_dataframes(self,dataframes,axisvalue):
         return pd.concat(dataframes,axis=axisvalue,join='inner').dropna()
 
-    def nullcount(self,dataframe):
+    def null_count(self,dataframe):
         return dataframe.isnull().sum()
 
-    def dropnulls(self,dataframe):
+    def drop_nulls(self,dataframe):
        dataframe.dropna(inplace=True)
 
     #Calculate daily returns
-    def calculatedailyreturns(self,dataframe):
+    def calculate_daily_returns(self,dataframe):
         return dataframe.pct_change().dropna()
 
-    def removecurrencysign(self,dataframe,colname):
+    def remove_currency_sign(self,dataframe,colname):
         dataframe[colname]=dataframe[colname].str.replace('$','')
 
     #Calculates cumulative total based on daily returns
-    def calculatecumulativereturns(self,dailyreturns):
+    def calculate_cumulative_returns(self,dailyreturns):
         return (1 + dailyreturns).cumprod().dropna()
 
-    def changecolumndatatype(self,dataframe,colname,newdatatype):
+    def change_column_datatype(self,dataframe,colname,newdatatype):
         dataframe[colname]=dataframe[colname].astype(newdatatype)
 
-    def renamecolumns(self,dataframe,columnmapper):
+    def rename_columns(self,dataframe,columnmapper):
         dataframe.rename(columns=columnmapper,inplace=True)
 
-    def calculatestandarddevation(self,dailyreturns,sortascending=True):
+    def calculate_standard_devation(self,dailyreturns,sortascending=True):
         return dailyreturns.std().sort_values(ascending=sortascending)
 
-    def calculateannulizedstandarddevation(self,dailyreturns,workingdays=252,sortascending=True):
+    def calculate_annulized_standard_devation(self,dailyreturns,workingdays=252,sortascending=True):
         return (dailyreturns * np.sqrt(workingdays)).sort_values(ascending=sortascending)
     
-    def calculaterollingstandarddeviation(self,dataframe,daywindow):
+    def calculate_rolling_standard_deviation(self,dataframe,daywindow):
         return dataframe.rolling(window=daywindow).std()
 
-    def calculatecorrelation(self,dataframe):
+    def calculate_correlation(self,dataframe):
         return dataframe.corr()
     
-    def calculatebeta(self,dailyreturns,convarienceportfolio,varianceportfolio,workingdays=0):
+    def calculate_beta(self,dailyreturns,convarienceportfolio,varianceportfolio,workingdays=0):
         _covariance=0
         _variance=0
         _calculated_beta=0
@@ -69,14 +69,14 @@ class dataframeanalayzer:
         _calculated_beta=_covariance/_variance
         return _calculated_beta
     
-    def determineriskyportfolio(self,stddata,baseportfolioname):
+    def determine_risky_portfolio(self,stddata,baseportfolioname):
         return stddata.gt(stddata[baseportfolioname])
     
-    def calculateexpotentialweightedaverage(self,dataframe,halflifevalue):
-        return dataframe.ewm(halflife=halflifevalue).mean()
+    def calculate_expotential_weighted_average(self,dataframe,halflifevalue):
+        return dataframe.ewm(halflife=halflifevalue).std()
     
-    def calculatesharpieratio(self,dailyreturns):
+    def calculate_sharpie_ratio(self,dailyreturns):
         return (dailyreturns.mean() * 252) / (dailyreturns.std() * np.sqrt(252))
 
-    def calculateweightedreturns(self,dailyreturns,weights):
+    def calculate_weighted_returns(self,dailyreturns,weights):
         return dailyreturns.dot(weights)
